@@ -860,6 +860,9 @@ class Gibbs_System():
                         else:
                             # update neutral species first   
                             if indx - 1 in self.NeutralSpecies: 
+                                self.Write2Log('==Updating neutral species {}==\n'.format(indx - 1))
+                                self.Write2Log('muI - mu II = {} - {} = {}\n'.format(self.OperatorsCurrent[8+4*(indx-1)],self.OperatorsCurrent[8+4*(indx-1)+2],DvalsCurrent[indx+1]))
+                                self.Write2Log('current conc of species in box I {}\n'.format(var))
                                 if self.UseAdaptiveDtC:  
                                     Dt_tmp = self.Dt[indx]
                                 else:
@@ -874,6 +877,14 @@ class Gibbs_System():
 
                     # update charged pair concentration
                     for indx, [i,j] in enumerate(self.ChargedPairs):
+                        self.Write2Log('==Updating charged pair {} = {}(charge {}) + {}(charge {})==\n'.format(indx,i,j,self.Charges[i],self.Charges[j]))
+                        self.Write2Log('muI_i {}, muII_i {}\n'.format(self.OperatorsCurrent[8+4*i],self.OperatorsCurrent[8+4*i+2]))
+                        self.Write2Log('muI_j {}, muII_j {}\n'.format(self.OperatorsCurrent[8+4*j],self.OperatorsCurrent[8+4*j+2]))
+                        self.Write2Log('muI = {} * {} + {} * {} = {}\n'.format(self.OperatorsCurrent[8+4*i],self.Valencies[j],self.OperatorsCurrent[8+4*j],self.Valencies[i],self.MuPair1[indx]))
+                        self.Write2Log('muII = {} * {} + {} * {} = {}\n'.format(self.OperatorsCurrent[8+4*i+2],self.Valencies[j],self.OperatorsCurrent[8+4*j+2],self.Valencies[i],self.MuPair2[indx]))
+                        self.Write2Log('muI - mu II = {} - {} = {}\n'.format(self.MuPair1[indx],self.MuPair2[indx]))
+                        self.Write2Log('CI_i {}, CI_j {}\n'.format(self.ValuesCurrent[(i+1)*2], self.ValuesCurrent[(j+1)*2]))
+                        self.Write2Log('current conc of pair in box I (must be min(zj*Ci)) {}\n'.format(Cpair1))
                         Cpair1 = self.Cpair1[indx]
                         Cpair2 = self.Cpair2[indx]
                         if self.UseAdaptiveDtC:
@@ -885,8 +896,11 @@ class Gibbs_System():
                         self.Cpair1[indx] = Cpair1
                     # update individual charged species concentration in box 1
                     for i in self.ChargedSpecies:                                         
+                        self.Write2Log('==Updating charged species {}\n'.format(i))
                         C = self.GetChargedC(i)
                         var = self.ValuesCurrent[(i+1)*2]
+                        self.Write2Log('Current conc in box I {}\n'.format(var))
+                        self.Write2Log('New conc in box I {}\n'.format(C))
                         self.ValuesCurrent[(i+1)*2] = C                                   
                         if self.ValuesCurrent[(i+1)*2]  < 0.:
                             self.Write2Log('Value for operator {} < 0; iterating...\n'.format(i+1))
